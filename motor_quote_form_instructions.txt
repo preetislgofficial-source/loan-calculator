@@ -1,0 +1,28 @@
+Motor Vehicle Insurance — Google Form template (instructions)
+
+Title: Motor Vehicle Insurance — Quick Quote
+
+Description: Submit basic vehicle details and we'll send a personalized renewal/new policy quote.
+
+Fields:
+1. Full name (Short answer) - Required
+2. Mobile number (Short answer) - Required (validate digits)
+3. Email (Short answer) - Optional
+4. Vehicle type (Dropdown) - Options: Two-Wheeler, Car (Private), Commercial Vehicle
+5. Vehicle make & model (Short answer)
+6. Registration number (Short answer)
+7. Year of manufacture (Short answer / number)
+8. Current insurer (Short answer) - Optional
+9. Policy expiry date (Date) - Required
+10. Need (Multiple choice) - Options: Renewal, New Policy, Transfer/RTO
+11. State (Dropdown) - Options: Bihar, Jharkhand, West Bengal, Odisha, Sikkim, Other North East, Other (Not eligible)
+12. Upload RC & Insurance (File upload) - Optional (set file types: PDF, JPG; size limit)
+13. Preferred callback time (Short answer) - Optional
+14. Consent checkbox - "I authorize Ashrafi Financial Safety Net Consultant to contact me regarding insurance quotes." - Required
+
+Form settings:
+- After submit: Show custom message: "Thanks! We'll send a quote within 1 business day. Click here to chat on WhatsApp." Insert link: https://wa.me/918092130450?text=I%20have%20submitted%20my%20motor%20insurance%20details
+- Link form to Google Sheet: Responses -> Link to Sheet
+- Enable email notifications for new responses (in Sheets: Tools -> Notification rules)
+
+Use this instruction to manually create the Google Form in forms.google.com. You can also copy the questions into a new Form quickly by pasting them into the question area.

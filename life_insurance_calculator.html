@@ -1,0 +1,71 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Life Insurance Cover Calculator</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    body {font-family: Arial, sans-serif; padding: 18px; max-width:720px; margin:auto; background:#f8fafc; color:#111;}
+    h2 {color:#0b46a8;}
+    label{display:block; margin-top:12px; font-weight:600;}
+    input{width:100%; padding:10px; margin-top:6px; border-radius:6px; border:1px solid #dfe7f3;}
+    button{margin-top:14px; padding:10px 14px; background:#007f5f; color:#fff; border:none; border-radius:8px; font-weight:700;}
+    .result{margin-top:14px; padding:12px; background:#eef9f4; border-radius:8px; border:1px solid #d8f0e6;}
+    .note{font-size:13px; color:#444; margin-top:8px;}
+  </style>
+</head>
+<body>
+  <h2>🧮 Life Insurance Cover Calculator</h2>
+  <p class="note">Enter your details to get a quick indicative recommended life cover. This is illustrative — final advice depends on full financial review.</p>
+
+  <label>Annual Income (₹)</label>
+  <input type="number" id="income" value="600000">
+
+  <label>Outstanding Loans (₹)</label>
+  <input type="number" id="loan" value="500000">
+
+  <label>Monthly Family Expenses (₹)</label>
+  <input type="number" id="expenses" value="30000">
+
+  <label>Years You Want Family Covered</label>
+  <input type="number" id="years" value="15">
+
+  <label>Existing Life Cover (₹) — optional</label>
+  <input type="number" id="existing" value="200000">
+
+  <button onclick="calc()">Calculate Recommended Cover</button>
+
+  <div id="out" class="result" style="display:none"></div>
+
+  <script>
+    function calc(){
+      const income = Number(document.getElementById('income').value) || 0;
+      const loan = Number(document.getElementById('loan').value) || 0;
+      const expenses = Number(document.getElementById('expenses').value) || 0;
+      const years = Number(document.getElementById('years').value) || 0;
+      const existing = Number(document.getElementById('existing').value) || 0;
+
+      // Simple recommended cover formula:
+      // Income protection (5x annual income) + loan outstanding + (monthly expenses * 12 * years) - existing cover
+      const incomeProtection = income * 5;
+      const familyExpenses = expenses * 12 * years;
+      const recommended = Math.max(0, Math.round(incomeProtection + loan + familyExpenses - existing));
+
+      const shortfall = recommended > 0 ? recommended : 0;
+
+      const out = document.getElementById('out');
+      out.style.display = 'block';
+      out.innerHTML = `
+        <strong>Recommended total life cover:</strong> ₹${recommended.toLocaleString()}<br>
+        <strong>Breakdown:</strong><br>
+        - Income protection (5× annual income): ₹${incomeProtection.toLocaleString()}<br>
+        - Outstanding loans: ₹${loan.toLocaleString()}<br>
+        - Family expenses for ${years} years: ₹${familyExpenses.toLocaleString()}<br>
+        - Existing cover considered: ₹${existing.toLocaleString()}<br>
+        <hr>
+        <strong>Suggested next step:</strong> If your existing cover is less than recommended, consider increasing term life cover or top-up options. Contact us via WhatsApp for a free review.
+      `;
+    }
+  </script>
+</body>
+</html>
