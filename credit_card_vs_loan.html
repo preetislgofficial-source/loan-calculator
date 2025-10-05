@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Credit Card vs Personal Loan</title>
+  <style>
+    body {font-family: Arial; padding:20px; max-width:600px; margin:auto; background:#f8fafc;}
+    input {width:100%; margin:6px 0; padding:8px;}
+    button {background:#0b46a8; color:white; border:none; padding:10px; border-radius:6px; width:100%;}
+    .result{margin-top:15px; background:#eef6ff; padding:10px; border-radius:6px;}
+  </style>
+</head>
+<body>
+  <h2>Credit Card Min Due vs Personal Loan Comparison</h2>
+  <label>Credit Card Outstanding (₹)</label><input id="card" type="number" value="50000">
+  <label>Min Due %</label><input id="minp" type="number" value="5">
+  <label>Card Interest Rate (annual %)</label><input id="cr" type="number" value="36">
+  <label>Personal Loan Interest Rate (annual %)</label><input id="lr" type="number" value="12">
+  <label>Loan Tenure (years)</label><input id="lt" type="number" value="3">
+  <button onclick="compare()">Compare</button>
+  <div class="result" id="out"></div>
+
+  <script>
+    function compare(){
+      const card = Number(document.getElementById('card').value);
+      const minp = Number(document.getElementById('minp').value)/100;
+      const cr = Number(document.getElementById('cr').value)/12/100;
+      const lr = Number(document.getElementById('lr').value)/12/100;
+      const lt = Number(document.getElementById('lt').value)*12;
+
+      const cardEmi = card * minp;
+      const monthsCard = -Math.log(1 - cr*card / cardEmi) / Math.log(1 + cr);
+      const loanEmi = (card * lr * Math.pow(1 + lr, lt)) / (Math.pow(1 + lr, lt) - 1);
+      const totalLoan = loanEmi * lt;
+      const totalInterestLoan = totalLoan - card;
+
+      document.getElementById('out').innerHTML =
+        `<strong>Credit Card:</strong> ~${monthsCard.toFixed(0)} months to clear if paying only min due.<br>
+         <strong>Personal Loan EMI:</strong> ₹${loanEmi.toFixed(0)} per month<br>
+         <strong>Total Paid (Loan):</strong> ₹${totalLoan.toFixed(0)} (Interest ₹${totalInterestLoan.toFixed(0)})`;
+    }
+  </script>
+</body>
+</html>

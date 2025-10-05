@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Loan Eligibility & EMI Checker — Indicative</title>
+  <style>
+    :root{
+      --brand-blue:#0b46a8;
+      --brand-green:#007f5f;
+      --card-bg:#ffffff;
+      --muted:#666;
+      --max-width:760px;
+    }
+    body{font-family:Inter,Roboto,Arial,sans-serif; background:#f6f8fb; color:#111; padding:20px; -webkit-font-smoothing:antialiased;}
+    .wrap{max-width:var(--max-width); margin:18px auto; background:var(--card-bg); border-radius:12px; box-shadow:0 6px 20px rgba(10,20,40,0.08); padding:20px;}
+    h1{margin:0 0 6px; color:var(--brand-blue); font-size:20px;}
+    p.lead{margin:0 0 14px; color:var(--muted); font-size:13px;}
+    label{display:block; margin-top:10px; font-weight:600; font-size:13px;}
+    input[type="text"], input[type="number"], select {width:100%; padding:10px 12px; margin-top:6px; border:1px solid #e0e6ef; border-radius:8px; font-size:14px;}
+    .row{display:flex; gap:12px;}
+    .col{flex:1;}
+    .small{font-size:12px; color:var(--muted); margin-top:6px;}
+    button{background:var(--brand-green); color:white; border:none; padding:10px 14px; border-radius:8px; margin-top:14px; cursor:pointer; font-weight:700;}
+    .result{margin-top:18px; padding:14px; border-radius:8px; background:#f3f9f6; border:1px solid rgba(0,127,95,0.08);}
+    .warn{background:#fff7e6; border:1px solid rgba(200,140,0,0.12);}
+    .bad{background:#fff0f0; border:1px solid rgba(200,30,30,0.08);}
+    .badge{display:inline-block; padding:6px 8px; border-radius:6px; font-weight:700; font-size:13px; color:white}
+    .eligible{background:var(--brand-green)}
+    .review{background:#ff8c00}
+    .not{background:#d73a49}
+    .muted-note{font-size:12px; color:#444; margin-top:8px}
+    .inline-note{font-size:12px;color:var(--muted); margin-left:6px}
+    @media(max-width:720px){ .row{flex-direction:column} }
+  </style>
+</head>
+<body>
+  <div class="wrap" role="main" aria-labelledby="title">
+    <h1 id="title">Loan Eligibility & EMI Checker — Indicative</h1>
+    <p class="lead">Fill the form below to get an indicative HDFC-style eligibility check and an estimate of maximum loan amount and EMI. Service available only in Bihar, Jharkhand, West Bengal, Odisha, Sikkim and the North East.</p>
+
+    <!-- REGION + CONTACT -->
+    <label>State (required)</label>
+    <select id="state">
+      <option value="">-- Select state --</option>
+      <option value="Bihar">Bihar</option>
+      <option value="Jharkhand">Jharkhand</option>
+      <option value="West Bengal">West Bengal</option>
+      <option value="Odisha">Odisha</option>
+      <option value="Sikkim">Sikkim</option>
+      <option value="Other North East">Other North East (Assam/Manipur/Meghalaya/Mizoram/Nagaland/Tripura/Arunachal)</option>
+      <option value="Other">Other (Not eligible)</option>
+    </select>
+
+    <div id="region-msg" class="muted-note" style="display:none"></div>
+
+    <label>Loan type</label>
+    <select id="loanType">
+      <option value="personal_salaried">Personal loan — Salaried</option>
+      <option value="personal_self">Personal loan — Self-employed</option>
+      <option value="business">Business loan — Self-employed / Business</option>
+    </select>
+
+    <div class="row">
+      <div class="col">
+        <label>Age (years)</label>
+        <input id="age" type="number" min="18" max="100" value="30">
+      </div>
+      <div class="col">
+        <label>Employment type</label>
+        <select id="employment">
+          <option value="salaried">Salaried</option>
+          <option value="self">Self-employed / Business</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col">
+        <label>Total work experience (years) — for salaried</label>
+        <input id="workTotal" type="number" min="0" value="3" />
+      </div>
+      <div class="col">
+        <label>Work with current employer (years) — for salaried</label>
+        <input id="workCurrent" type="number" min="0" value="1" />
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col">
+        <label>Net monthly in-hand income (₹)</label>
+        <input id="incomeMonthly" type="number" min="0" value="60000">
+      </div>
+      <div class="col">
+        <label>Existing monthly EMI obligations (₹)</label>
+        <input id="existingEmi" type="number" min="0" value="5000">
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col">
+        <label>Approx. CIBIL / Credit score (optional)</label>
+        <input id="cibil" type="number" min="0" max="900" placeholder="e.g. 720">
+      </div>
+      <div class="col">
+        <label>Latest annual ITR (₹) — for business applicants</label>
+        <input id="itr" type="number" min="0" value="200000">
+      </div>
+    </div>
+
+    <div class="row" style="margin-top:8px">
+      <div class="col">
+        <label>Preferred loan tenure (years)</label>
+        <select id="tenureYears">
+          <option value="1">1 year</option>
+          <option value="2">2 years</option>
+          <option value="3" selected>3 years</option>
+          <option value="4">4 years</option>
+          <option value="5">5 years</option>
+        </select>
+        <div class="small">You can change tenure later; estimate uses this to show EMI.</div>
+      </div>
+      <div class="col">
+        <label>Preferred annual interest rate (%) — for estimate</label>
+        <input id="interestPct" type="number" step="0.01" value="12.00">
+        <div class="small">Default is illustrative (12%). Final rate depends on HDFC product and underwriting.</div>
+      </div>
+    </div>
+
+    <div style="margin-top:12px">
+      <button id="calcBtn">Check Eligibility & Estimate</button>
+      <button id="resetBtn" style="background:#e9eefb; color:var(--brand-blue); margin-left:8px">Reset</button>
+    </div>
+
+    <div id="outputArea" style="display:none"></div>
+
+    <footer>
+      <div>Note: Indicative check only. Final sanction subject to HDFC Bank underwriting and document verification. For detailed checks, request callback.</div>
+    </footer>
+  </div>
+
+  <script>
+    // Constants (can be edited later)
+    const ALLOWED_STATES = ["Bihar","Jharkhand","West Bengal","Odisha","Sikkim","Other North East"];
+    const MIN_SALARIED_INCOME = 25000;   // ₹ per month — illustrative HDFC threshold
+    const MIN_TOTAL_EXPERIENCE_YEARS = 2; // total
+    const MIN_CURRENT_EMPLOYER_YEARS = 1;
+    const MIN_ITR_BUSINESS = 150000; // ₹ annual — illustrative
+    const RECOMMENDED_CIBIL = 650; // recommended threshold
+    const DTI = 0.50; // 50% of monthly income used as conservative DTI
+
+    function $(id){ return document.getElementById(id); }
+
+    function resetForm(){
+      $('state').value = '';
+      $('loanType').value = 'personal_salaried';
+      $('age').value = 30;
+      $('employment').value = 'salaried';
+      $('workTotal').value = 3;
+      $('workCurrent').value = 1;
+      $('incomeMonthly').value = 60000;
+      $('existingEmi').value = 5000;
+      $('cibil').value = '';
+      $('itr').value = 200000;
+      $('tenureYears').value = 3;
+      $('interestPct').value = 12.00;
+      $('outputArea').style.display = 'none';
+      $('region-msg').style.display = 'none';
+    }
+
+    function formatINR(num){
+      if(num===null || isNaN(num)) return '—';
+      return '₹' + Number(num).toLocaleString('en-IN');
+    }
+
+    function calcLoanPV(monthlyPayment, monthlyRate, months){
+      // PV = payment * (1 - (1+r)^-n) / r
+      // handle r == 0 case
+      if(monthlyPayment <= 0) return 0;
+      if(monthlyRate === 0){
+        return monthlyPayment * months;
+      }
+      const pv = monthlyPayment * (1 - Math.pow(1 + monthlyRate, -months)) / monthlyRate;
+      return pv;
+    }
+
+    function calcEMI(principal, monthlyRate, months){
+      // EMI formula: (P * r * (1+r)^n) / ((1+r)^n -1)
+      if(principal <=0) return 0;
+      if(monthlyRate === 0) return principal / months;
+      const top = principal * monthlyRate * Math.pow(1 + monthlyRate, months);
+      const bot = Math.pow(1 + monthlyRate, months) - 1;
+      return top / bot;
+    }
+
+    $('resetBtn').addEventListener('click', function(e){ e.preventDefault(); resetForm(); });
+
+    $('calcBtn').addEventListener('click', function(e){
+      e.preventDefault();
+
+      // Read inputs with simple validation
+      const state = $('state').value;
+      const loanType = $('loanType').value;
+      const age = Number($('age').value) || 0;
+      const employment = $('employment').value;
+      const workTotal = Number($('workTotal').value) || 0;
+      const workCurrent = Number($('workCurrent').value) || 0;
+      const incomeMonthly = Number($('incomeMonthly').value) || 0;
+      const existingEmi = Number($('existingEmi').value) || 0;
+      const cibil = $('cibil').value === '' ? null : Number($('cibil').value);
+      const itr = Number($('itr').value) || 0;
+      const tenureYears = Number($('tenureYears').value) || 3;
+      const annualRate = Number($('interestPct').value) || 12.0;
+
+      // Region check
+      if(!ALLOWED_STATES.includes(state)){
+        $('region-msg').style.display = 'block';
+        $('region-msg').textContent = 'We currently provide this HDFC-based eligibility service only in Bihar, Jharkhand, West Bengal, Odisha, Sikkim and the North East. We cannot assist applicants from other states at present.';
+        $('outputArea').style.display = 'none';
+        return;
+      } else {
+        $('region-msg').style.display = 'none';
+      }
+
+      // Eligibility checks
+      // Age rules: for personal loan assume 21 - 60 (illustrative); for business allow up to 65 at maturity (simple check)
+      const ageOkPersonal = (age >=21 && age <= 60);
+      const ageOkBusiness = (age >=21 && age <= 65); // illustrative upper bound for business
+      let ageOk = (loanType === 'business') ? ageOkBusiness : ageOkPersonal;
+
+      // Employment checks for salaried
+      let workExpOk = true;
+      if(employment === 'salaried'){
+        workExpOk = (workTotal >= MIN_TOTAL_EXPERIENCE_YEARS && workCurrent >= MIN_CURRENT_EMPLOYER_YEARS);
+      }
+
+      // Income checks (salaried)
+      let incomeOk = true;
+      if(employment === 'salaried'){
+        incomeOk = (incomeMonthly >= MIN_SALARIED_INCOME);
+      } else {
+        // for self-employed, we will check ITR for business or allow manual review
+        incomeOk = true;
+      }
+
+      // Business ITR check if business loan
+      let itrOk = true;
+      if(loanType === 'business'){
+        itrOk = (itr >= MIN_ITR_BUSINESS);
+      }
+
+      // CIBIL check (recommended threshold)
+      let cibilMsg = '';
+      if(cibil === null){
+        cibilMsg = 'CIBIL not provided (higher scores improve chances).';
+      } else if(cibil >= RECOMMENDED_CIBIL){
+        cibilMsg = 'CIBIL score looks good.';
+      } else {
+        cibilMsg = 'CIBIL below recommended threshold — may reduce likelihood.';
+      }
+
+      // Compute DTI-based available EMI
+      const availableForNewEmi = Math.max(0, incomeMonthly * DTI - existingEmi);
+
+      // Convert to monthly interest rate
+      const monthlyRate = (annualRate/12)/100;
+      const months = tenureYears * 12;
+
+      // Estimate maximum loan amount using present value formula
+      const estLoan = Math.round(calcLoanPV(availableForNewEmi, monthlyRate, months));
+      const estEmiOnEstLoan = Math.round(calcEMI(estLoan, monthlyRate, months));
+
+      // Build decision text
+      let reasons = [];
+      if(!ageOk) reasons.push('Age outside typical HDFC range for this product.');
+      if(employment === 'salaried' && !workExpOk) reasons.push('Insufficient work experience (salaried applicants typically need ≥2 years total and ≥1 year with current employer).');
+      if(employment === 'salaried' && !incomeOk) reasons.push(`Monthly in-hand income below illustrative threshold of ${formatINR(MIN_SALARIED_INCOME)}.`);
+      if(loanType === 'business' && !itrOk) reasons.push(`Annual ITR below illustrative minimum of ${formatINR(MIN_ITR_BUSINESS)} for some business products.`);
+      if(availableForNewEmi <= 0) reasons.push('No available EMI capacity after existing obligations under the chosen DTI assumption.');
+
+      // Determine outcome
+      let outcome = 'Needs manual review or not eligible';
+      let badgeClass = 'review';
+      if(reasons.length === 0){
+        outcome = 'Likely Eligible — manual verification required';
+        badgeClass = 'eligible';
+      } else {
+        // if only cibil or minor flags -> manual review; if major flags (age/income/itr/available EMI) -> not eligible
+        const majorFlags = reasons.filter(r => /Age|income|ITR|No available EMI|Insufficient work experience/i.test(r));
+        if(majorFlags.length > 0){
+          outcome = 'Needs manual review / may be ineligible';
+          badgeClass = 'not';
+        } else {
+          outcome = 'Needs manual review';
+          badgeClass = 'review';
+        }
+      }
+
+      // Render results
+      const out = $('outputArea');
+      out.style.display = 'block';
+      out.innerHTML = `
+        <div class="result">
+          <div style="display:flex; align-items:center; gap:12px;">
+            <div class="badge ${badgeClass === 'eligible' ? 'eligible' : (badgeClass === 'review' ? 'review' : 'not') }">${outcome}</div>
+            <div style="font-size:13px; color:var(--muted);">This is an <strong>indicative</strong> result. Final approval subject to HDFC underwriting and documents.</div>
+          </div>
+
+          <hr style="margin:12px 0; border:none; height:1px; background:#eef2ff" />
+
+          <div style="display:flex; gap:12px; flex-wrap:wrap;">
+            <div style="flex:1; min-width:220px">
+              <strong>Applicant summary</strong>
+              <div class="small">Age: ${age} years</div>
+              <div class="small">Employment: ${employment === 'salaried' ? 'Salaried' : 'Self-employed'}</div>
+              <div class="small">Monthly income: ${formatINR(incomeMonthly)} </div>
+              <div class="small">Existing EMI: ${formatINR(existingEmi)}</div>
+              <div class="small">${cibilMsg}</div>
+            </div>
+
+            <div style="flex:1; min-width:220px">
+              <strong>Estimate</strong>
+              <div class="small">DTI used: ${Math.round(DTI*100)}% of monthly income</div>
+              <div class="small">Estimated max loan (approx): <strong>${formatINR(estLoan)}</strong></div>
+              <div class="small">Estimated EMI on this loan: <strong>${formatINR(estEmiOnEstLoan)}</strong> / month for ${tenureYears} years at ${annualRate}% p.a.</div>
+            </div>
+          </div>
+
+          ${ reasons.length>0 ? `<div style="margin-top:12px"><strong>Flags / reasons:</strong><ul>${reasons.map(r=>`<li>${r}</li>`).join('')}</ul></div>` : '' }
+
+          <div style="margin-top:12px">
+            <strong>Next steps</strong>
+            <div class="small">If you want us to proceed, please click 'Request Callback' below to share documents (ID, salary slips or ITR) for verification and formal submission to HDFC. Final sanction depends on complete documentation, credit bureau checks, and HDFC product rules.</div>
+            <div style="margin-top:8px">
+              <button id="requestCallback">Request Callback</button>
+            </div>
+          </div>
+        </div>
+      `;
+
+      // attach callback button listener
+      setTimeout(()=>{
+        const cb = document.getElementById('requestCallback');
+        if(cb){
+          cb.addEventListener('click', function(){
+            // Open mailto or show instructions
+            const subject = encodeURIComponent('Request: Loan eligibility follow-up');
+            const body = encodeURIComponent(
+              `Hello,\n\nI used the eligibility checker and would like a callback to proceed. \n\nSummary:\nState: ${state}\nLoan: ${loanType}\nAge: ${age}\nEmployment: ${employment}\nMonthly income: ${incomeMonthly}\nExisting EMI: ${existingEmi}\nEstimated loan: ${estLoan}\n\nPlease call me back or tell me how to share documents.\n\nThank you.`
+            );
+            // Replace the email below with your contact email or open WhatsApp link
+            
+            // Open WhatsApp chat for callback (replace waNumber with your number)
+            const waNumber = '918092130450'; // <<-- replace this with your number in international format, e.g. 919999999999
+            const message = encodeURIComponent(`Hello, I used your eligibility checker and would like a callback. My details: State: ${state}, Loan: ${loanType}, Age: ${age}, Income: ${incomeMonthly}. Please call me.`);
+            const waUrl = `https://wa.me/${waNumber}?text=${message}`;
+            window.open(waUrl, '_blank');
+          });
+        }
+      }, 50);
+
+    });
+
+    // Initialize
+    resetForm();
+  </script>
+</body>
+</html>
