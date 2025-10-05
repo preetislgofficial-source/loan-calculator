@@ -1,0 +1,86 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Health Insurance Adequacy Checker</title>
+  <style>
+    body{font-family:Arial,Helvetica,sans-serif; background:#f8fafc; color:#111; padding:18px; max-width:720px; margin:auto}
+    h2{color:#0b46a8}
+    label{display:block; margin-top:12px; font-weight:600}
+    input, select{width:100%; padding:10px; margin-top:6px; border-radius:6px; border:1px solid #dde6f3}
+    button{margin-top:14px; padding:10px 14px; background:#007f5f; color:#fff; border:none; border-radius:8px; font-weight:700}
+    .result{margin-top:14px; padding:12px; background:#eef9ff; border-radius:8px; border:1px solid #d6e9ff}
+    .whatsapp{display:inline-block; margin-top:12px; background:#25D366; color:white; padding:10px 14px; border-radius:8px; text-decoration:none; font-weight:bold}
+    .note{font-size:13px; color:#444; margin-top:8px}
+  </style>
+</head>
+<body>
+  <h2>🏥 Health Insurance Adequacy Checker</h2>
+  <p class="note">Quickly estimate whether your current health cover is sufficient for your family's needs.</p>
+
+  <label>Annual Income (₹)</label>
+  <input id="income" type="number" value="600000">
+
+  <label>Number of family members covered (including you)</label>
+  <input id="members" type="number" value="4">
+
+  <label>Current total family health cover (sum of all policies) (₹)</label>
+  <input id="currentCover" type="number" value="500000">
+
+  <label>Preferred minimum cover per member (₹) — leave blank to use suggested benchmark</label>
+  <input id="preferred" type="number" placeholder="e.g. 500000">
+
+  <label>Suggested benchmark: choose method</label>
+  <select id="method">
+    <option value="income">Income-based (Annual income / 10)</option>
+    <option value="fixed">Fixed (₹500,000 per member)</option>
+    <option value="custom">Custom per member (use Preferred value)</option>
+  </select>
+
+  <button onclick="calc()">Calculate Adequacy</button>
+
+  <div id="out" class="result" style="display:none"></div>
+
+  <script>
+    function calc(){
+      const income = Number(document.getElementById('income').value) || 0;
+      const members = Math.max(1, Number(document.getElementById('members').value) || 1);
+      const current = Number(document.getElementById('currentCover').value) || 0;
+      const preferred = Number(document.getElementById('preferred').value) || 0;
+      const method = document.getElementById('method').value;
+
+      let perMemberSuggested = 500000; // default
+      if(method === 'income'){
+        perMemberSuggested = Math.round(income / 10);
+      } else if(method === 'fixed'){
+        perMemberSuggested = 500000;
+      } else if(method === 'custom' && preferred>0){
+        perMemberSuggested = preferred;
+      }
+
+      const recommendedTotal = perMemberSuggested * members;
+      const shortfall = Math.max(0, recommendedTotal - current);
+      const sufficiencyPct = Math.round((current / recommendedTotal) * 100) || 0;
+
+      const message = encodeURIComponent(`Hello, I used the Health Adequacy Checker. Recommended total cover: ₹${recommendedTotal.toLocaleString()}. Current cover: ₹${current.toLocaleString()}. Shortfall: ₹${shortfall.toLocaleString()}. Please advise.`);
+      const waLink = `https://wa.me/918092130450?text=${message}`;
+
+      const out = document.getElementById('out');
+      out.style.display = 'block';
+      out.innerHTML = `
+        <strong>Per-member suggested cover:</strong> ₹${perMemberSuggested.toLocaleString()}<br>
+        <strong>Recommended total family cover:</strong> ₹${recommendedTotal.toLocaleString()}<br>
+        <strong>Current total cover:</strong> ₹${current.toLocaleString()}<br>
+        <strong>Shortfall:</strong> ₹${shortfall.toLocaleString()}<br>
+        <strong>Coverage sufficiency:</strong> ${sufficiencyPct}% of recommended<br>
+        <hr>
+        <strong>Suggested next steps:</strong><br>
+        - If shortfall &gt; 0: consider increasing sum insured or adding family floater/top-up plans.<br>
+        - For accurate advice, click below to chat on WhatsApp and share policy details securely.<br>
+        <a href="${waLink}" target="_blank" class="whatsapp">💬 Chat on WhatsApp</a>
+      `;
+    }
+  </script>
+</body>
+</html>
